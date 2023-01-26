@@ -13,11 +13,11 @@ if __name__ == "__main__":
         .getOrCreate()
 
     # Loads data from HDFS
-    taxi_trips_df   = spark.read.parquet('hdfs://master:9000/data/parquet')
-    zone_lookups_df = spark.read.option('header', 'true').csv('hdfs://master:9000/data/csv')
+    taxi_trip_df   = spark.read.parquet('hdfs://master:9000/data/parquet')
+    zone_lookup_df = spark.read.option('header', 'true').csv('hdfs://master:9000/data/csv')
 
-    df1 = taxi_trips_df.alias('df1')
-    df2 = zone_lookups_df.alias('df2')
+    df1 = taxi_trip_df.alias('df1')
+    df2 = zone_lookup_df.alias('df2')
 
     # --------------- Q1 query ---------------
 
