@@ -64,10 +64,10 @@ if __name__ == "__main__":
 
     # Gets number of workers
     sc = spark._jsc.sc()
-    nworkers = len([executor.host() for executor in sc.statusTracker().getExecutorInfos()])-1
+    nworks = len([executor.host() for executor in sc.statusTracker().getExecutorInfos()])-1
 
     # Outputs elapsed query execution time to file
-    with open(f'{home}/out/{base}_w{nworkers}.time', 'w') as f:
+    with open(f'{home}/out/{base}_w{nworks}.time', 'w') as f:
         f.write(f'{elapsed:.2f} s\n')
 
     spark.stop()
