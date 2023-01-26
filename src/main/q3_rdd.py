@@ -1,4 +1,5 @@
 from pyspark.sql import SparkSession
+from pyspark.sql import functions as F
 from pyspark.sql.types import Row
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -41,19 +42,33 @@ if __name__ == "__main__":
         .getOrCreate()
 
     # Loads data from HDFS
-    taxi_trips_df   = spark.read.parquet('hdfs://master:9000/data/parquet')
-    zone_lookups_df = spark.read.option('header', 'true').csv('hdfs://master:9000/data/csv')
+    taxi_trip_df   = spark.read.parquet('hdfs://master:9000/data/parquet')
+    zone_lookup_df = spark.read.option('header', 'true').csv('hdfs://master:9000/data/csv')
 
-    df1 = taxi_trips_df.alias('df1')
-    df2 = zone_lookups_df.alias('df2')
-
-    rdd1 = df1.rdd
-    rdd2 = df2.rdd
+    df1 = taxi_trip_df.alias('df1')
+    df2 = zone_lookup_df.alias('df2')
 
     # --------------- Q1 query ---------------
 
     start = time.time()
 
+    # Cleans data - See `tests.py`
+    clean = (F.year('tpep_dropoff_datetime') == 2022) & \
+            F.month('tpep_dropoff_datetime').between(1, 6) & \
+            (F.col('tip_amount') >= 0) & \
+            (F.col('tolls_amount') >= 0) & \
+            (F.col('trip_distance') >= 0) & \
+            (F.col('total_amount') >= 0) & \
+            (F.col('passenger_count') >= 0) & \
+            (F.col('fare_amount') >= 0)
+
+    df1 = df1.filter(clean)
+
+    # Creates RDDs
+    rdd1 = df1.rdd
+    rdd2 = df2.rdd
+
+    # Creates `LocationID`: `Zone` dictionary
     zone_lookup_table = dict( rdd2.map(lambda x: (x.LocationID, x.Zone)).collect() )
 
     rdd1 = rdd1 \
@@ -63,18 +78,23 @@ if __name__ == "__main__":
         .mapValues(lambda x: (x[0]/x[2], x[1]/x[2])) \
         .sortByKey()
 
-    #rdd1.collect()
-    for r in rdd1.collect():
-        print(r)
+    collected = rdd1.collect()
 
-    elapsed = time.time() - start
+    end = time.time()
+
+    # Outputs result
+    for row in collected:
+        print(row)
+
     base    = os.path.basename(sys.argv[0]).split('.')[0]
     home    = os.getenv('ATDB_PROJECT_HOME')
+    elapsed = end - start
 
     # Gets number of workers
     sc = spark._jsc.sc()
     nworkers = len([executor.host() for executor in sc.statusTracker().getExecutorInfos()])-1
 
+    # Outputs elapsed query execution time to file
     with open(f'{home}/out/{base}_w{nworkers}.time', 'w') as f:
         f.write(f'{elapsed:.2f} s\n')
 
