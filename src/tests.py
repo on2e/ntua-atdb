@@ -172,11 +172,9 @@ if __name__ == "__main__":
     """
 
     # Cleans data.
-    # Keeps only rows with non-Null values.
     # Keeps only year 2022 and months Jan-Jun.
     # Keeps only non-negative values for fields of interest.
-    clean = F.col('passenger_count').isNotNull() & \
-            (F.year('tpep_dropoff_datetime') == 2022) & \
+    clean = (F.year('tpep_dropoff_datetime') == 2022) & \
             F.month('tpep_dropoff_datetime').between(1, 6) & \
             (F.col('tip_amount') >= 0) & \
             (F.col('tolls_amount') >= 0) & \
