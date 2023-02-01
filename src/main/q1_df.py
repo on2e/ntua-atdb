@@ -35,7 +35,11 @@ if __name__ == "__main__":
 
     df1 = df1.filter(clean)
 
-    cond = [df1.DOLocationID == df2.LocationID, df2.Zone == 'Battery Park']
+    df2 = df2 \
+        .filter(df2.Zone == 'Battery Park') \
+        .select('LocationID')
+
+    cond = df1.DOLocationID == df2.LocationID
 
     df1 = df1 \
         .filter(F.month('tpep_dropoff_datetime') == 3) \
