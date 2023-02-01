@@ -43,8 +43,15 @@ if __name__ == "__main__":
 
     df1 = df1 \
         .filter(F.month('tpep_dropoff_datetime') == 3) \
-        .join(df2, cond, 'left_semi') \
-        .agg(F.max('tip_amount'))
+        .join(df2, cond, 'left_semi')
+
+    df1.persist()
+
+    maxagg = df1.agg(F.max('tip_amount'))
+    # Gets max value
+    maxval = maxagg.rdd.flatMap(lambda x: x).collect()[0]
+    # Gets max row(s)
+    df1 = df1.filter(F.col('tip_amount') == maxval)
 
     df1.persist().collect()
 

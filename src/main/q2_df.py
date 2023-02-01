@@ -1,4 +1,4 @@
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, Window
 from pyspark.sql import functions as F
 from dotenv import load_dotenv
 import os, sys, time
@@ -35,10 +35,14 @@ if __name__ == "__main__":
 
     df1 = df1.filter(clean)
 
+    w = Window \
+        .partitionBy(F.month('tpep_dropoff_datetime'))
+
     df1 = df1 \
         .filter(F.col('tolls_amount') != 0) \
-        .groupBy(F.month('tpep_dropoff_datetime').alias('dropoff_month')) \
-        .agg(F.max('tolls_amount')) \
+        .withColumn('max', F.max('tolls_amount').over(w)) \
+        .filter(F.col('tolls_amount') == F.col('max')) \
+        .drop('max')
 
     df1.persist().collect()
 
