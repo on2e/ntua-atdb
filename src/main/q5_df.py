@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
     w = Window \
         .partitionBy('dropoff_month') \
-        .orderBy(F.desc('max(tip_to_fare_pct)'))
+        .orderBy(F.desc('avg(tip_to_fare_pct)'))
 
     df1 = df1 \
         .withColumn('dropoff_month', F.month('tpep_dropoff_datetime')) \
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         .withColumn('tip_to_fare_pct', df1.tip_amount / df1.fare_amount * 100) \
         .select('dropoff_month', 'dropoff_day', 'tip_to_fare_pct') \
         .groupBy('dropoff_month', 'dropoff_day') \
-        .agg(F.max('tip_to_fare_pct')) \
+        .agg(F.avg('tip_to_fare_pct')) \
         .orderBy('dropoff_month') \
         .withColumn('row', F.row_number().over(w)) \
         .filter(F.col('row') <= 5) \
