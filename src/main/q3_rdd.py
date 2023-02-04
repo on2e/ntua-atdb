@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 from pyspark.sql.types import Row
 from datetime import datetime, timedelta
+import pytz
 from dotenv import load_dotenv
 import os, sys, time
 
@@ -23,14 +24,16 @@ def to_window(row: Row) -> list:
     Otherwise, returns empty list so rows falling out of desired ranges
     are discarded using flatMap.
     """
-    td    = timedelta(15)        # Time duration of 15 days
-    start = datetime(2022, 1, 1) # Naive datetime object of '2022-01-01 00:00:00'
-    end   = start + td
+    local_tz = pytz.timezone('Europe/Athens')
+    td       = timedelta(days=15)
+    start    = local_tz.localize(datetime(2022, 1, 1))
+    end      = local_tz.normalize(start + td)
+    local_dt = local_tz.normalize(local_tz.localize(row.tpep_dropoff_datetime))
     while start.month < 7:
-        if start <= row.tpep_dropoff_datetime < end:
+        if start <= local_dt < end:
             k, v = (start, end), (row.trip_distance, row.total_amount, 1)
             return [(k, v)]
-        start, end = end, end + td
+        start, end = end, local_tz.normalize(end + td)
     return []
 
 
@@ -84,7 +87,9 @@ if __name__ == "__main__":
 
     # Outputs result
     for row in collected:
-        print(row)
+        # Convert back to naive datetimes for printing purposes
+        pair = (tuple(map(lambda dt: dt.replace(tzinfo=None), row[0])), row[1])
+        print(pair)
 
     base    = os.path.basename(sys.argv[0]).split('.')[0]
     home    = os.getenv('ATDB_PROJECT_HOME')
