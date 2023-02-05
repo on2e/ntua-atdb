@@ -2,26 +2,26 @@
 
 ## Project
 
-The project objective was to process a large data set on Hadoop distributed file system using the Apache Spark processing engine. For this purpose, a set of queries was implemented and run using both the Spark DataFrame and RDD APIs. The data set used is a subset of the Yellow Taxi Trip Records, found [here](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page), involving the year 2022 and months January to June (the auxiliary Taxi Zone Lookup Table that contains the foreign key of location ids that map to specific boroughs and zones is also included).
+The project objective was to process a large data set on Apache Hadoop's distributed storage using the Apache Spark processing engine. For this purpose, a set of queries was implemented and run using both the Spark DataFrame and RDD APIs. The data sets used are a subset of the Yellow Taxi Trip Records, found [here](https://www.nyc.gov/site/tlc/about/tlc-trip-record-data.page), involving the year 2022 and months January to June, along with the auxiliary Taxi Zone Lookup Table that contains the foreign key of location ids that map to specific boroughs and zones.
 
 | Query | Description                                                                                                                                                                                                                                                                                                                                |
 |-------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Q1    | Find the taxi trip with the maximum tip amount for the month of March where the dropoff zone is 'Battery Park'.                                                                                                                                  |
+| Q1    | Find the taxi trip with the maximum tip amount for the month of March where the drop-off zone is 'Battery Park'.                                                                                                                                  |
 | Q2    | For each month, find the taxi trip with the maximum tolls amount. Ignore zero values.                                                                                                                                                                                                                                                    |
-| Q3    | For each consecutive 15-day time window, find the averages of total distance and amount, where the pickup and dropoff zones are different.                                                                                                                                                                                                                        |
+| Q3    | For each consecutive 15-day time window, find the averages of total distance and amount, where the pick-up and drop-off zones are different.                                                                                                                                                                                                                        |
 | Q4    | For each day of the week, find the top 3 peak hours, meaning the 1-hour time slots of the day with the maximum number of passengers in a single taxi trip. This includes all given months, not a for-each.                                                                                                                                                         |
 | Q5    | For each month, find the top 5 days with the maximum average tip-to-fare amount ratio. |
 
 ## Technologies
 
-* Apache Spark v3.1.3
-* Apache Hadoop v2.7.7
-* Python v3.8.0
-* OpenJDK v1.8.0_292
+* Apache Spark - v3.1.3
+* Apache Hadoop - v2.7.7
+* Python - v3.8.0
+* OpenJDK - v1.8.0_292
 
 ## Cluster
 
-A Hadoop & Spark cluster of 2 nodes was deployed using resources provided by GRNET's Okeanos-Knossos [service](https://okeanos-knossos.grnet.gr). Specifically, 2 VMs were created to act as a master-slave cluster using a shared private network. Each VM was given 2 CPUs, 4GB RAM, 30GB HDD and hosted Ubuntu 16.04.7 LTS.
+A Hadoop & Spark cluster of 2 nodes was deployed using resources provided by GRNET's Okeanos-Knossos [service](https://okeanos-knossos.grnet.gr). Specifically, 2 VMs were created to act in a master-slave architecture using a shared private network. Each VM was given 2 CPUs, 4GB RAM, 30GB HDD and hosted Ubuntu 16.04.7 LTS.
 
 | Node    | IP            | Namenode  | Datanode  | Master    | Worker    |
 | :---    |    :----:     |   :----:  |   :----:  |   :----:  |   :----:  |
@@ -221,9 +221,9 @@ Under `$SPARK_HOME/conf` edit the below files:
 
 5. `spark-env.sh`:
     ```console
-        $ cp $SPARK_HOME/conf/spark-env.sh.template $SPARK_HOME/conf/spark-env.sh
-        $ echo 'SPARK_WORKER_CORES=2' > $SPARK_HOME/conf/spark-env.sh
-        $ echo 'SPARK_WORKER_MEMORY=3g' >> $SPARK_HOME/conf/spark-env.sh
+    $ cp $SPARK_HOME/conf/spark-env.sh.template $SPARK_HOME/conf/spark-env.sh
+    $ echo 'SPARK_WORKER_CORES=2' > $SPARK_HOME/conf/spark-env.sh
+    $ echo 'SPARK_WORKER_MEMORY=3g' >> $SPARK_HOME/conf/spark-env.sh
     ```
 
 6. `spark-defaults.conf`:
