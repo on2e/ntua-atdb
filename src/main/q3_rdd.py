@@ -9,7 +9,7 @@ import os, sys, time
 load_dotenv()
 
 def is_diff_pudozone(row: Row) -> bool:
-    """ Returns true if given row has different pickup and dropoff zones.
+    """ Returns true if given row has different pick-up and drop-off zones.
     Uses shared `zone_lookup_table` dictionary.
     """
     return zone_lookup_table[str(row.PULocationID)] != \
